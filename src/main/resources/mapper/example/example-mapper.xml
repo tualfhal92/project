@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="example">
+	<!-- 
+	<resultMap type="exam" id="examMap">
+		<result column="examLang" property="examLang" typeHandler="strArrTypeHandler"/>
+	</resultMap>
+	 -->
+	 
+	<select id="selectList">
+		select * from EXAMPLE order by INDEX desc
+	</select>
+	
+	<select id="select" parameterType="_int">
+		select * from EXAMPLE where INDEX = #{index}
+	</select>
+	
+	<insert id="insert" >
+		insert into EXAMPLE 
+		values(SEQ_EXAMPLE.NEXTVAL, #{val1}, #{val2})
+	</insert>
+	
+	<update id="update">
+		update EXAMPLE
+		set VAL1 = #{val1}, VAL2 = #{val2}
+		where INDEX = #{index}
+	</update>
+	
+	<delete id="delete" parameterType="_int">
+		delete from EXAMPLE where INDEX = #{index}
+	</delete>
+	
+</mapper>

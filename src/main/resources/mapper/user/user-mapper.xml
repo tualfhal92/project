@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="user">
+	<select id="selectList">
+		select * from TABLE_USER order by INDEX desc
+	</select>
+	
+	<select id="select" parameterType="string" resultType="user">
+		select *
+		from TABLE_USER
+		where USER_ID = #{user_id}
+	</select>
+	
+	<insert id="insert" parameterType="user">
+		insert into TABLE_USER
+		values(SEQ_USER_INDEX.NEXTVAL, #{user_id}, #{user_password},
+				#{user_nickname}, DEFAULT, #{user_phone}, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT)
+	</insert>
+	
+	<update id="update" parameterType="user">
+		update TABLE_USER
+		<set>
+			<if test="user_nickname != null">USER_NICKNAME = #{user_nickname},</if>
+			<if test="user_password != null">USER_PASSWORD = #{user_password},</if>
+			<if test="user_phone != null">USER_PHONE = #{user_phone},</if>
+		</set>
+		where USER_ID = #{user_id}
+	</update>
+	
+	<select id="idDuplicateCheck" parameterType="string" resultType="_int">
+		select count(*) from TABLE_USER where USER_ID = #{user_id}
+	</select>
+	
+	<select id="nicknameDuplicateCheck" parameterType="string" resultType="_int">
+		select count(*) from TABLE_USER where USER_NICKNAME = #{user_nickname}
+	</select>
+	
+	<select id="phoneDuplicateCheck" parameterType="string" resultType="_int">
+		select count(*) from TABLE_USER where USER_PHONE = #{user_phone}
+	</select>
+	
+	<update id="trySigninCountIncrease" parameterType="user">
+		<selectKey keyProperty="user_try_signin_count" resultType="_int" order="AFTER">
+			SELECT USER_TRY_SIGNIN_COUNT FROM TABLE_USER
+			WHERE USER_ID = #{user_id}
+		</selectKey>
+		update TABLE_USER
+		<set>
+			<if test="user_try_signin_count lt 5">
+				USER_TRY_SIGNIN_COUNT = USER_TRY_SIGNIN_COUNT + 1
+			</if>
+		</set>
+		where USER_ID = #{user_id}
+	</update>
+	
+	<update id="trySigninCountReset" parameterType="user">
+		<selectKey keyProperty="user_try_signin_count" resultType="_int" order="AFTER">
+			SELECT USER_TRY_SIGNIN_COUNT 
+			FROM TABLE_USER
+			WHERE USER_ID = #{user_id}
+		</selectKey>
+		update TABLE_USER
+		SET USER_TRY_SIGNIN_COUNT = DEFAULT
+		where USER_ID = #{user_id}
+	</update>
+	
+	<update id="trySigninCountResetForUnlock" parameterType="string">
+		update TABLE_USER
+		SET USER_TRY_SIGNIN_COUNT = DEFAULT
+		where USER_ID = #{id_for_unlock_input}
+	</update>
+	
+	<update id="passwordModify" parameterType="user">
+		update TABLE_USER
+		SET USER_PASSWORD = #{user_password}
+		where USER_ID = #{user_id}
+	</update>
+	
+	<select id="isUserExist" parameterType="string" resultType="_integer">
+		select count(*)
+		from TABLE_USER
+		where USER_ID = #{user_id}
+	</select>
+		
+	<!-- My page -->
+	<select id="myPageTotalCnt" resultType="_integer">
+		SELECT COUNT(*)  
+		<if test="tab eq 'myLecture'">
+		FROM (select MAX(HISTORY_LECTURE_BOARD_INDEX) from table_lecture_history WHERE HISTORY_USER_INDEX = #{user_index} GROUP BY HISTORY_LECTURE_INDEX) 
+		</if>
+		<if test="tab eq 'wishList'">
+		FROM TABLE_WISH_LIST WHERE WISH_USER_INDEX = #{user_index}
+		</if>
+		<if test="tab eq 'QnAList'">
+		FROM TABLE_LECTURE_Q WHERE LECTURE_Q_WRITER_INDEX = #{user_index}
+		</if>
+	</select>
+	
+	<select id="myLectureList" resultType="lecture">
+		SELECT * 
+		FROM TABLE_LECTURE 
+		JOIN TABLE_USER ON(LECTURE_INSTRUCTOR_INDEX = USER_INDEX)
+		JOIN (select HISTORY_LECTURE_INDEX, NVL(MAX(HISTORY_LECTURE_BOARD_INDEX), NULL) AS HISTORY_LECTURE_BOARD_INDEX 
+		from table_lecture_history WHERE HISTORY_USER_INDEX = #{user_index} GROUP BY HISTORY_LECTURE_INDEX) ON (LECTURE_INDEX = HISTORY_LECTURE_INDEX)
+	</select>
+	
+	<select id="myWishList" resultType="lecture">
+		SELECT LECTURE_INDEX, LECTURE_CATEGORY_INDEX, LECTURE_INSTRUCTOR_INDEX, LECTURE_THUMBNAIL, LECTURE_TITLE, LECTURE_INTRO, 
+		LECTURE_LEVEL, LECTURE_PRICE, LECTURE_UPLOAD_DATE, USER_NICKNAME, LECTURE_REVIEW_COUNT, LECTURE_TOTAL_SCORE
+		FROM TABLE_WISH_LIST
+		JOIN TABLE_LECTURE ON(WISH_LECTURE_INDEX = LECTURE_INDEX) 
+		JOIN TABLE_USER ON(LECTURE_INSTRUCTOR_INDEX = USER_INDEX)
+		LEFT JOIN TABLE_LECTURE_TOTAL_SCORE ON (TABLE_LECTURE_TOTAL_SCORE.TOTAL_LECTURE_INDEX = TABLE_LECTURE.LECTURE_INDEX) 
+		WHERE WISH_USER_INDEX = #{user_index} AND LECTURE_IS_DELETED = 0
+	</select>
+	
+	<select id="myPaymentList" resultType="purchase">
+		SELECT * 
+		FROM TABLE_PURCHASE 
+		JOIN TABLE_USER ON(PURCHASE_USER_INDEX = USER_INDEX) 
+		LEFT JOIN TABLE_COUPON ON(PURCHASE_USED_COUPON_INDEX=COUPON_INDEX) 
+		WHERE USER_INDEX = #{user_index}
+	</select>
+	
+	<select id="myCouponList" resultType="hashmap">
+		SELECT * 
+		FROM TABLE_USER_COUPON 
+		JOIN TABLE_COUPON USING(COUPON_INDEX) 
+		WHERE USER_INDEX = #{user_index}
+	</select>
+	
+	<select id="myqnaList" resultType="hashmap">
+		SELECT * FROM TABLE_LECTURE_Q 
+		LEFT JOIN TABLE_LECTURE_A ON(LECTURE_Q_INDEX = LECTURE_A_LECTURE_Q_INDEX) 
+		JOIN TABLE_LECTURE ON(LECTURE_INDEX = LECTURE_Q_LECTURE_INDEX)
+		LEFT JOIN (SELECT LECTURE_A_LECTURE_Q_INDEX,COUNT(*) AS READCNT 
+		FROM TABLE_LECTURE_A 
+		WHERE LECTURE_A_IS_READED = 0 
+		GROUP BY LECTURE_A_LECTURE_Q_INDEX) A ON(A.LECTURE_A_LECTURE_Q_INDEX = TABLE_LECTURE_A.LECTURE_A_LECTURE_Q_INDEX)
+		WHERE LECTURE_Q_WRITER_INDEX = #{user_index} ORDER BY LECTURE_Q_UPLOAD_DATE DESC
+	</select>
+	
+	<update id="cancelLecture" parameterType="hashmap">
+		UPDATE TABLE_LECTURE_HISTORY SET HISTORY_IS_DELETED = 1 
+		WHERE HISTORY_LECTURE_INDEX = #{lecture_index} AND HISTORY_USER_INDEX = #{user_index}	
+	</update>
+	
+	<delete id="deleteWishList" parameterType="hashmap">
+		DELETE FROM TABLE_WISH_LIST
+		WHERE WISH_LECTURE_INDEX IN
+		<foreach item="index" collection="wishList" separator=", " open="(" close=")">
+		#{index}
+		</foreach>
+		AND WISH_USER_INDEX = #{userIdx}
+	</delete>
+	
+	<select id="cartList" resultType="hashmap">
+		SELECT * FROM TABLE_LECTURE L JOIN TABLE_CART C
+		ON(L.LECTURE_INDEX=C.CART_LECTURE_INDEX) WHERE C.CART_USER_INDEX=#{user_index}
+	</select>
+   
+	<delete id="deleteCart" parameterType="hashmap">
+		DELETE FROM TABLE_CART
+		WHERE CART_LECTURE_INDEX IN
+		<foreach item="index" collection="cartList" separator=", " open="(" close=")">
+		#{index}
+		</foreach>
+		AND CART_USER_INDEX = #{userIdx}
+   	</delete>
+   	
+   	<select id="purchaseList" parameterType="string" resultType="hashmap">
+   		SELECT *
+   		FROM TABLE_LECTURE
+   		WHERE LECTURE_INDEX IN 
+   		<foreach item="index" collection="array" separator=", " open="(" close=")">
+		#{index}
+		</foreach>
+   	</select>
+   	
+   	<insert id="insertPurchase" parameterType="hashmap">
+   		INSERT INTO TABLE_PURCHASE VALUES(
+   		#{rsp.merchant_uid}, #{user_idx}, #{rsp.custom_data[0]}, DEFAULT, #{rsp.name}, 
+   		#{rsp.paid_amount}, #{rsp.buyer_email}, #{rsp.buyer_name}, #{rsp.buyer_tel}, #{rsp.status}, #{rsp.pay_method}, #{rsp.paid_at}
+   		)
+   	</insert>	
+   	
+   	<update id="deleteUserCoupon" parameterType="string">
+   		UPDATE TABLE_USER_COUPON SET USER_COUPON_USED_DATE = SYSDATE WHERE USER_COUPON_INDEX = #{user_coupon_inx} 
+   	</update>
+   	
+   	<select id="selectPurchase" parameterType="string" resultType="hashmap">
+   		SELECT * FROM TABLE_PURCHASE LEFT JOIN TABLE_COUPON ON(COUPON_INDEX = PURCHASE_USED_COUPON_INDEX) WHERE MERCHANT_UID = #{msg}
+   	</select>
+   	
+   	<delete id="deletefromCart" parameterType="hashmap">
+   		DELETE FROM TABLE_CART
+		WHERE CART_LECTURE_INDEX IN
+		<foreach item="item" collection="cartList" separator=", " open="(" close=")">
+		#{item}
+		</foreach>
+		AND CART_USER_INDEX = #{userIdx}
+   	</delete>	
+   	
+   	<insert id="insertPurchaseList" parameterType="hashmap">
+   		<foreach item="item" collection="lecIdx" open="INSERT ALL" separator=" " close="SELECT * FROM DUAL">
+			INTO TABLE_PURCHASE_LIST VALUES ( #{u_id}, #{item} )
+		</foreach>
+   	</insert>
+   	
+   	<select id="pwSearch" parameterType="String" resultType="String">
+   		SELECT USER_PASSWORD FROM TABLE_USER WHERE USER_INDEX= #{userindex}
+   	</select>
+   	
+   	<update id="change_pw" parameterType="map">
+   	 	update table_user SET USER_PASSWORD = #{change_pw}  where user_index= #{userindex}
+   	</update>
+   	
+
+	<update id="infoChange" parameterType="map">
+		update table_user SET 
+		<if test="nickname != '' and phone ==''">
+		USER_NICKNAME = #{nickname}
+		</if>
+		<if test="nickname == '' and phone !=''">
+		USER_PHONE = #{phone}
+		</if>
+		<if test="nickname != '' and phone !=''">
+		USER_NICKNAME = #{nickname} , USER_PHONE = #{phone}
+		</if>
+		
+		where user_index= #{userindex}
+	</update>
+	<select id="selectOneIndex" parameterType="string" resultType="user">
+		select *
+		from TABLE_USER
+		where USER_INDEX = #{userindex}
+	</select>
+	 <update id="getout" parameterType="map">
+   update table_user SET USER_IS_SECESSION=1  where user_index= #{userindex}
+   </update>
+   <select id="history" parameterType="map" resultType="_int">
+   SELECT COUNT(*) as cnt FROM TABLE_LECTURE_HISTORY WHERE HISTORY_USER_INDEX=#{userindex}
+   </select>
+   <update id="imgUpdate" parameterType="map">
+   UPDATE TABLE_user set USER_THUMBNAIL = #{updateImg} where user_index= #{userindex}
+   </update>
+
+	<insert id="inputWishList" parameterType="hashmap">
+		INSERT INTO TABLE_WISH_LIST VALUES(#{lecture_index}, #{user_index})
+	</insert>
+	
+	<delete id="deleteWishListone" parameterType="hashmap">
+		DELETE FROM TABLE_WISH_LIST 
+		WHERE WISH_LECTURE_INDEX = #{lecture_index} AND WISH_USER_INDEX = #{user_index} 
+	</delete>
+	
+	<select id="checkcart" parameterType="hashmap" resultType="_int">
+		SELECT COUNT(*) FROM TABLE_CART
+		WHERE CART_LECTURE_INDEX = #{lecture_index} AND CART_USER_INDEX = #{user_index}
+	</select>
+	
+	<insert id="addTocart" parameterType="hashmap">
+		INSERT INTO TABLE_CART VALUES(#{user_index}, #{lecture_index})
+	</insert>
+</mapper>

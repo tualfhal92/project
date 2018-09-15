@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="admin">
+	<!-- community result map -->
+	<resultMap id="getselectCommuList" type="commu">
+		<result property="commu_Index" column="COMMU_INDEX" />
+		<result property="commu_Writer_Index" column="COMMU_WRITER_INDEX" />
+		<result property="commu_Category_Index" column="COMMU_CATEGORY_INDEX" />
+		<result property="commu_Title" column="COMMU_TITLE" />
+		<result property="commu_Content" column="COMMU_CONTENT"
+			jdbcType="CLOB" javaType="java.lang.String" />
+		<result property="commu_Hits" column="COMMU_HITS" />
+		<result property="commu_Upload_Date" column="COMMU_UPLOAD_DATE" />
+		<result property="commu_Update_Date" column="COMMU_UPDATE_DATE" />
+		<result property="commu_Is_Deleted" column="COMMU_IS_DELETED" />
+		<result property="commu_tags" column="COMMU_TAGS" />
+		<result property="fileCount" column="FILECOUNT" />
+		<result property="commu_Writer" column="COMMU_WRITER" />
+	</resultMap>
+	<resultMap id="getselectCommuOne" type="commu">
+		<result property="commu_Index" column="COMMU_INDEX" />
+		<result property="commu_Writer_Index" column="COMMU_WRITER_INDEX" />
+		<result property="commu_Category_Index" column="COMMU_CATEGORY_INDEX" />
+		<result property="commu_Title" column="COMMU_TITLE" />
+		<result property="commu_Content" column="COMMU_CONTENT"
+			jdbcType="CLOB" javaType="java.lang.String" />
+		<result property="commu_Hits" column="COMMU_HITS" />
+		<result property="commu_Upload_Date" column="COMMU_UPLOAD_DATE" />
+		<result property="commu_Update_Date" column="COMMU_UPDATE_DATE" />
+		<result property="commu_tags" column="COMMU_TAGS" />
+		<result property="commu_Is_Deleted" column="COMMU_IS_DELETED" />
+		<result property="commu_Writer" column="COMMU_WRITER" />
+	</resultMap>
+	<resultMap id="getselectCommuReplyList" type="commuReply"> 
+		<result property="commu_Reply_Index" column="COMMU_REPLY_INDEX" /> 
+		<result property="commu_Reply_Commu_Index" column="COMMU_REPLY_COMMU_INDEX" /> 
+		<result property="commu_Reply_Parent_Index" column="COMMU_REPLY_PARENT_INDEX" /> 
+		<result property="commu_Reply_Writer_Index" column="COMMU_REPLY_WRITER_INDEX" /> 
+		<result property="commu_Reply_Content" column="COMMU_REPLY_CONTENT" jdbcType="CLOB" javaType="java.lang.String" /> 
+		<result property="commu_Reply_Upload_Date" column="COMMU_REPLY_UPLOAD_DATE" /> 
+		<result property="commu_Reply_Update_Date" column="COMMU_REPLY_UPDATE_DATE" /> 
+		<result property="commu_Reply_Depth_Index" column="COMMU_REPLY_DEPTH_INEDX" />
+		<result property="commu_Reply_Is_Deleted" column="COMMU_REPLY_IS_DELETED" /> 
+		<result property="commu_Reply_Is_Readed" column="COMMU_REPLY_IS_READED" />  
+		<result property="commu_Reply_Order_Index" column="COMMU_REPLY_ORDER_INDEX" />  
+	</resultMap>
+	
+	<select id="getTodaySignupCount" resultType="_int">
+		select COUNT(*) from TABLE_USER
+		where SUBSTR(USER_ENROLLED_DATE, 1, 8) = SUBSTR(SYSDATE, 1, 8)
+	</select>
+	
+	<select id="getTodayPurchaseCount" resultType="_int">
+		select COUNT(*) from TABLE_PURCHASE
+		where SUBSTR(PURCHASE_DATE, 1, 8) = SUBSTR(SYSDATE, 1, 8) 
+	</select>
+	
+	<select id="getTodayCommuCount" resultType="_int">
+		select COUNT(*) from TABLE_COMMU
+		where SUBSTR(COMMU_UPLOAD_DATE, 1, 8) = SUBSTR(SYSDATE, 1, 8) 
+	</select>
+	
+	<select id="getTodayCommuReply" resultType="_int">
+		select COUNT(*) from TABLE_COMMU_REPLY
+		where SUBSTR(COMMU_REPLY_UPLOAD_DATE, 1, 8) = SUBSTR(SYSDATE, 1, 8)
+	</select>
+	
+	<!-- chart area -->
+	<select id="getYearlySignupChart" resultType="hashMap">
+		select * from (select SUBSTR(USER_ENROLLED_DATE, 1, 5) as "Month", count(*) as "Value" from TABLE_USER
+                where USER_ENROLLED_DATE <![CDATA[<]]> SYSDATE
+		group by SUBSTR(USER_ENROLLED_DATE, 1, 5))
+		where ROWNUM <![CDATA[<=]]> 12
+		order by "Month" asc
+	</select>
+	
+	<select id="getYearlyPurchaseCountChart" resultType="hashMap">
+		select * from (select SUBSTR(PURCHASE_DATE, 1, 5) as "Month", count(*) as "Value" from TABLE_PURCHASE
+                where PURCHASE_DATE <![CDATA[<]]> SYSDATE
+		group by SUBSTR(PURCHASE_DATE, 1, 5))
+		where ROWNUM <![CDATA[<=]]> 12
+		order by "Month" asc
+	</select>
+
+	<select id="getYearlyPurchaseAmountChart" resultType="hashMap">
+		select * from (select SUBSTR(PURCHASE_DATE, 1, 5) as "Month", NVL(SUM(PAID_AMOUNT), 0) as "Value" from TABLE_PURCHASE
+                where PURCHASE_DATE <![CDATA[<]]> SYSDATE
+		group by SUBSTR(PURCHASE_DATE, 1, 5))
+		where ROWNUM <![CDATA[<=]]> 12
+		order by "Month" asc
+	</select>
+	
+	<select id="getYearlyCommuChart" resultType="hashMap">
+		select * from (select SUBSTR(COMMU_UPLOAD_DATE, 1, 5) as "Month", count(*) as "Value" from TABLE_COMMU
+                where COMMU_UPLOAD_DATE <![CDATA[<]]> SYSDATE
+		group by SUBSTR(COMMU_UPLOAD_DATE, 1, 5))
+		where ROWNUM <![CDATA[<=]]> 12
+		order by "Month" asc
+	</select>
+	
+	<select id="getYearlyCommuReplyChart" resultType="hashMap">
+		select * from (select SUBSTR(COMMU_REPLY_UPLOAD_DATE, 1, 5) as "Month", count(*) as "Value" from TABLE_COMMU_REPLY
+                where COMMU_REPLY_UPLOAD_DATE <![CDATA[<]]> SYSDATE
+		group by SUBSTR(COMMU_REPLY_UPLOAD_DATE, 1, 5))
+		where ROWNUM <![CDATA[<=]]> 12
+		order by "Month" asc
+	</select>
+	
+	<select id="selectUser" parameterType="_int" resultType="user">
+		select * from TABLE_USER where USER_INDEX = #{user_index}
+	</select>
+		
+	<select id="selectUserList" parameterType="_int" resultType="user">
+		select * from TABLE_USER
+		where USER_LEVEL <![CDATA[<]]> #{user_level} and
+			(USER_TYPE like '%'||'user'||'%' or
+			USER_TYPE like '%'||'inst'||'%') 
+		order by USER_LEVEL desc, USER_INDEX desc
+	</select>
+	
+	<select id="getSelectUserListCount" parameterType="_int" resultType="_int">
+		select COUNT(*) from TABLE_USER
+		where USER_LEVEL <![CDATA[<]]> #{user_level} and
+			(USER_TYPE like '%'||'user'||'%' OR 
+			USER_TYPE like '%'||'inst'||'%') 
+	</select>
+	
+	<update id="modifyUserByAdmin" parameterType="user">
+		update TABLE_USER
+		<set>
+			<if test="user_nickname != null">USER_NICKNAME = #{user_nickname},</if>
+			<if test="user_phone != null">USER_PHONE = #{user_phone},</if>
+			USER_TYPE = #{user_type},
+			USER_IS_SECESSION = #{user_is_secession},
+			USER_IS_KICKED = #{user_is_kicked},
+			<if test="user_try_signin_count gte 0">USER_TRY_SIGNIN_COUNT = #{user_try_signin_count},</if>
+		</set>
+		where USER_INDEX = #{user_index} and USER_ID = #{user_id}
+	</update>
+	
+	<select id="selectCommuListByUserIndex" parameterType="_int" resultMap="getselectCommuList">
+		select
+		COMMU_INDEX,COMMU_WRITER_INDEX,COMMU_CATEGORY_INDEX,COMMU_TITLE,COMMU_HITS,COMMU_UPLOAD_DATE,COMMU_UPDATE_DATE,COMMU_IS_DELETED,USER_NICKNAME
+		COMMU_WRITER, COMMU_TAGS
+		from TABLE_USER U join TABLE_COMMU C on(C.COMMU_WRITER_INDEX=U.USER_INDEX)
+		where U.USER_INDEX = #{user_index}
+		order by C.COMMU_UPLOAD_DATE desc
+	</select>
+	
+	<select id="getSelectCommuListCountByUserIndex" parameterType="_int" resultType="_int">
+		select COUNT(*)
+		from TABLE_USER U join TABLE_COMMU C on(C.COMMU_WRITER_INDEX=U.USER_INDEX)
+		where U.USER_INDEX = #{user_index}
+	</select>
+	
+	<select id="searchCommuListByUserIndex" parameterType="map" resultMap="getselectCommuList">
+		select
+		COMMU_INDEX,COMMU_WRITER_INDEX,COMMU_CATEGORY_INDEX,COMMU_TITLE,COMMU_HITS,COMMU_UPLOAD_DATE,COMMU_UPDATE_DATE,COMMU_IS_DELETED,USER_NICKNAME
+		COMMU_WRITER, COMMU_TAGS
+		from TABLE_USER U join TABLE_COMMU C on(C.COMMU_WRITER_INDEX=U.USER_INDEX)
+		where U.USER_INDEX = #{user_index}
+		<if test="filter eq 'title'">
+			and C.COMMU_TITLE like '%'||#{text}||'%'
+		</if>
+		<if test="filter eq 'content'">
+			and C.COMMU_CONTENT like '%'||#{text}||'%' 
+		</if>
+		<if test="filter eq 'tag'">
+			and C.COMMU_TAGS like '%'||#{text}||'%' 
+		</if>
+		order by C.COMMU_INDEX DESC
+	</select>
+	
+	<select id="getSearchCommuListCountByUserIndex" parameterType="map" resultType="_int">
+		select COUNT(*)
+		from TABLE_USER U join TABLE_COMMU C on(C.COMMU_WRITER_INDEX=U.USER_INDEX)
+		where U.USER_INDEX = #{user_index}
+		<if test="filter eq 'title'">
+			and C.COMMU_TITLE like '%'||#{text}||'%'
+		</if>
+		<if test="filter eq 'content'">
+			and C.COMMU_CONTENT like '%'||#{text}||'%' 
+		</if>
+		<if test="filter eq 'tag'">
+			and C.COMMU_TAGS like '%'||#{text}||'%' 
+		</if>
+	</select>
+	
+	<select id="selectCommuReplyListByUserIndex" parameterType="_int" resultMap="getselectCommuReplyList">
+		select R.*,U.USER_NICKNAME COMMU_REPLY_WRITER
+		from TABLE_COMMU_REPLY R
+		join TABLE_USER U on(R.COMMU_REPLY_WRITER_INDEX=U.USER_INDEX)
+		where COMMU_REPLY_WRITER_INDEX = #{user_index}
+		order by COMMU_REPLY_PARENT_INDEX desc, COMMU_REPLY_ORDER_INDEX asc
+	</select>
+	
+	<select id="getSelectCommuReplyListCountByUserIndex" parameterType="_int" resultType="_int">
+		select COUNT(*)
+		from TABLE_COMMU_REPLY where COMMU_REPLY_WRITER_INDEX = #{user_index}
+	</select>
+	
+	<select id="searchCommuReplyListByUserIndex" parameterType="map" resultMap="getselectCommuReplyList">
+		select R.*,U.USER_NICKNAME COMMU_REPLY_WRITER
+		from TABLE_COMMU_REPLY R
+		join TABLE_USER U on(R.COMMU_REPLY_WRITER_INDEX=U.USER_INDEX)
+		where COMMU_REPLY_WRITER_INDEX = #{user_index}
+		<if test="filter != null">
+			and R.COMMU_REPLY_CONTENT like '%'||#{text}||'%'
+		</if>
+		order by R.COMMU_REPLY_INDEX DESC
+	</select>
+	
+	<select id="getSearchCommuReplyListCountByUserIndex" parameterType="map" resultType="_int">
+		select COUNT(*)
+		from TABLE_COMMU_REPLY R
+		join TABLE_USER U on(R.COMMU_REPLY_WRITER_INDEX=U.USER_INDEX)
+		where COMMU_REPLY_WRITER_INDEX = #{user_index}
+		<if test="filter != null">
+			and R.COMMU_REPLY_CONTENT like '%'||#{text}||'%'
+		</if>
+	</select>
+	
+	<select id="getTotalPurchaseCountByUserIndex" parameterType="_int" resultType="_int">
+		select COUNT(*) from TABLE_PURCHASE
+		where PURCHASE_USER_INDEX = #{user_index}
+		and status='paid'
+	</select>
+	
+	<select id="getTotalPurchaseAmountByUserIndex" parameterType="_int" resultType="_int">
+		select NVL(SUM(PAID_AMOUNT), 0) from TABLE_PURCHASE
+		where PURCHASE_USER_INDEX = #{user_index}
+		and status='paid'
+	</select>
+	
+	<select id="selectPurchaseListByUserIndex" parameterType="_int" resultType="purchase">
+		select MERCHANT_UID, PURCHASE_DATE, PAID_AMOUNT, STATUS from TABLE_PURCHASE
+		left join TABLE_COUPON on(PURCHASE_USED_COUPON_INDEX = COUPON_INDEX)
+		where PURCHASE_USER_INDEX = #{user_index}
+		order by MERCHANT_UID desc
+	</select>
+	
+	<select id="getSelectPurchaseListCountByUserIndex" parameterType="_int" resultType="_int">
+		select COUNT(*) from TABLE_PURCHASE
+		where PURCHASE_USER_INDEX = #{user_index}
+	</select>
+	
+	<select id="selectCouponListByUserIndex" parameterType="_int" resultType="hashmap">
+		select *
+		from TABLE_USER_COUPON
+		join TABLE_COUPON using(COUPON_INDEX) 
+		where USER_INDEX = #{user_index}
+	</select>
+	
+	<select id="getSelectCouponListCountByUserIndex" parameterType="_int" resultType="_int">
+		select COUNT(*)
+		from TABLE_USER_COUPON
+		join TABLE_COUPON using(COUPON_INDEX) 
+		where USER_INDEX = #{user_index}
+	</select>
+	
+	<select id="getSelectUnusedCouponListCountByUserIndex" parameterType="_int" resultType="_int">
+		select COUNT(*)
+		from TABLE_USER_COUPON
+		join TABLE_COUPON using(COUPON_INDEX) 
+		where USER_INDEX = #{user_index} and
+		USER_COUPON_USED_DATE is NULL
+	</select>
+	
+	<select id="searchUserList" parameterType="map" resultType="user">
+		select * from TABLE_USER
+		where USER_LEVEL <![CDATA[<]]> #{user_level} and
+			(USER_TYPE like '%'||'user'||'%' OR 
+			USER_TYPE like '%'||'inst'||'%')
+			<choose>
+				<when test="filter eq 'id'">
+					and USER_ID like '%'|| #{text} ||'%' 
+				</when>
+				<when test="filter eq 'nickname'">
+					and USER_NICKNAME like '%'|| #{text} ||'%'
+				</when>
+				<when test="filter eq 'phone'">
+					and USER_PHONE like '%'|| #{text} ||'%'
+				</when>
+				<otherwise>
+				</otherwise>
+			</choose>
+		order by USER_LEVEL desc, USER_INDEX desc
+	</select>
+	
+	<select id="getSearchUserListCount" parameterType="map" resultType="_int">
+		select COUNT(*) from TABLE_USER
+		where USER_LEVEL <![CDATA[<]]> #{user_level} and
+			(USER_TYPE like '%'||'user'||'%' OR 
+			USER_TYPE like '%'||'inst'||'%')
+		<choose>
+			<when test="filter eq 'id'">
+				and USER_ID like '%'|| #{text} ||'%' 
+			</when>
+			<when test="filter eq 'nickname'">
+				and USER_NICKNAME like '%'|| #{text} ||'%'
+			</when>
+			<when test="filter eq 'phone'">
+				and USER_PHONE like '%'|| #{text} ||'%'
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+		
+	<!-- community area -->
+	
+	<select id="selectCommuList" parameterType="string" resultMap="getselectCommuList">
+		select
+		COMMU_INDEX,COMMU_WRITER_INDEX,COMMU_CATEGORY_INDEX,COMMU_TITLE,COMMU_CONTENT,COMMU_HITS,COMMU_UPLOAD_DATE,COMMU_UPDATE_DATE,COMMU_IS_DELETED,USER_NICKNAME
+		COMMU_WRITER, COMMU_TAGS
+		from TABLE_USER U join TABLE_COMMU C on(C.COMMU_WRITER_INDEX=U.USER_INDEX)
+		<where> 
+			<choose>
+				<when test="_parameter eq 'trash'">
+					C.COMMU_IS_DELETED = 1
+				</when>
+				<otherwise>
+					C.COMMU_IS_DELETED = 0
+				</otherwise>
+			</choose>
+			
+			<if test="_parameter eq 'notice'">
+				and C.COMMU_CATEGORY_INDEX = 'N01'
+			</if>
+			<if test="_parameter eq 'board'">
+				and C.COMMU_CATEGORY_INDEX = 'B04'
+			</if>
+			<if test="_parameter eq 'qa'">
+				and C.COMMU_CATEGORY_INDEX = 'B02'
+			</if>
+			<if test="_parameter eq 'news'">
+				and C.COMMU_CATEGORY_INDEX = 'B03'
+			</if>
+		</where>
+		order by C.COMMU_INDEX DESC
+	</select>
+	
+	<select id="getSelectCommuListCount" parameterType="string" resultType="_int">
+		select COUNT(*)
+		from TABLE_USER U join TABLE_COMMU C on(C.COMMU_WRITER_INDEX=U.USER_INDEX)
+		<where> 
+			<choose>
+				<when test="_parameter eq 'trash'">
+					C.COMMU_IS_DELETED = 1
+				</when>
+				<otherwise>
+					C.COMMU_IS_DELETED = 0
+				</otherwise>
+			</choose>
+			
+			<if test="_parameter eq 'notice'">
+				and C.COMMU_CATEGORY_INDEX = 'N01'
+			</if>
+			<if test="_parameter eq 'board'">
+				and C.COMMU_CATEGORY_INDEX = 'B04'
+			</if>
+			<if test="_parameter eq 'qa'">
+				and C.COMMU_CATEGORY_INDEX = 'B02'
+			</if>
+			<if test="_parameter eq 'news'">
+				and C.COMMU_CATEGORY_INDEX = 'B03'
+			</if>
+		</where>
+	</select>
+	
+	<select id="searchCommuList" parameterType="map" resultMap="getselectCommuList">
+		select
+		COMMU_INDEX,COMMU_WRITER_INDEX,COMMU_CATEGORY_INDEX,COMMU_TITLE,COMMU_CONTENT,COMMU_HITS,COMMU_UPLOAD_DATE,COMMU_UPDATE_DATE,COMMU_IS_DELETED,USER_NICKNAME
+		COMMU_WRITER, COMMU_TAGS
+		from TABLE_USER U join TABLE_COMMU C on(C.COMMU_WRITER_INDEX=U.USER_INDEX)
+		<where>
+			<choose>
+				<when test="category eq 'trash'">
+					C.COMMU_IS_DELETED = 1
+				</when>
+				<otherwise>
+					C.COMMU_IS_DELETED = 0
+				</otherwise>
+			</choose>
+		
+			<if test="filter eq 'title'">
+				and C.COMMU_TITLE like '%'||#{text}||'%'
+			</if>
+			<if test="filter eq 'writer'">
+				and U.USER_NICKNAME like '%'||#{text}||'%' 
+			</if>
+			<if test="filter eq 'content'">
+				and C.COMMU_CONTENT like '%'||#{text}||'%' 
+			</if>
+			<if test="filter eq 'tag'">
+				and C.COMMU_TAGS like '%'||#{text}||'%' 
+			</if>
+		
+			<if test="category eq 'notice'">
+				and C.COMMU_CATEGORY_INDEX = 'N01'
+			</if>
+			<if test="category eq 'board'">
+				and C.COMMU_CATEGORY_INDEX = 'B04'
+			</if>
+			<if test="category eq 'qa'">
+				and C.COMMU_CATEGORY_INDEX = 'B02'
+			</if>
+			<if test="category eq 'news'">
+				and C.COMMU_CATEGORY_INDEX = 'B03'
+			</if>
+		</where>
+		order by C.COMMU_INDEX DESC
+	</select>
+	
+	<select id="getSearchCommuListCount" parameterType="map" resultType="_int">
+		select COUNT(*)
+		from TABLE_USER U join TABLE_COMMU C on(C.COMMU_WRITER_INDEX=U.USER_INDEX)
+		<where>
+			<choose>
+				<when test="category eq 'trash'">
+					C.COMMU_IS_DELETED = 1
+				</when>
+				<otherwise>
+					C.COMMU_IS_DELETED = 0
+				</otherwise>
+			</choose>
+		
+			<if test="filter eq 'title'">
+				and C.COMMU_TITLE like '%'||#{text}||'%'
+			</if>
+			<if test="filter eq 'writer'">
+				and U.USER_NICKNAME like '%'||#{text}||'%' 
+			</if>
+			<if test="filter eq 'content'">
+				and C.COMMU_CONTENT like '%'||#{text}||'%' 
+			</if>
+			<if test="filter eq 'tag'">
+				and C.COMMU_TAGS like '%'||#{text}||'%' 
+			</if>
+		
+			<if test="category eq 'notice'">
+				and C.COMMU_CATEGORY_INDEX = 'N01'
+			</if>
+			<if test="category eq 'board'">
+				and C.COMMU_CATEGORY_INDEX = 'B04'
+			</if>
+			<if test="category eq 'qa'">
+				and C.COMMU_CATEGORY_INDEX = 'B02'
+			</if>
+			<if test="category eq 'news'">
+				and C.COMMU_CATEGORY_INDEX = 'B03'
+			</if>
+		</where>
+	</select>
+		
+	<select id="selectCommuByCommuIndex" parameterType="_int" resultMap="getselectCommuOne">
+		select
+		COMMU_INDEX,COMMU_WRITER_INDEX,COMMU_CATEGORY_INDEX,COMMU_TITLE,COMMU_CONTENT,COMMU_HITS,COMMU_UPLOAD_DATE,COMMU_UPDATE_DATE,COMMU_IS_DELETED,USER_NICKNAME
+		COMMU_WRITER, COMMU_TAGS
+		from TABLE_USER U join TABLE_COMMU C on(C.COMMU_WRITER_INDEX=U.USER_INDEX)
+		where C.COMMU_INDEX=#{commu_index}
+	</select>
+	
+	<select id="selectCommuReplyListByCommuIndex" resultMap="getselectCommuReplyList">
+		select R.*,U.USER_NICKNAME COMMU_REPLY_WRITER from TABLE_COMMU_REPLY R join TABLE_USER U 
+		on(R.COMMU_REPLY_WRITER_INDEX=U.USER_INDEX) where COMMU_REPLY_COMMU_INDEX=#{commu_index}
+		order by COMMU_REPLY_PARENT_INDEX desc, COMMU_REPLY_ORDER_INDEX asc
+	</select>
+	
+	<update id="deleteCommuByCommuIndex" parameterType="_int">
+		update TABLE_COMMU set
+		COMMU_IS_DELETED=1 where COMMU_INDEX=#{target_index}
+	</update>
+	
+	<update id="restoreCommuByCommuIndex" parameterType="_int">
+		update TABLE_COMMU set
+		COMMU_IS_DELETED=0 where COMMU_INDEX=#{target_index}
+	</update>
+	
+	<select id="selectCommuReplyByCommuReplyIndex" parameterType="_int" resultMap="getselectCommuReplyList">
+		select R.*,U.USER_NICKNAME COMMU_REPLY_WRITER from TABLE_COMMU_REPLY R join TABLE_USER U 
+		on(R.COMMU_REPLY_WRITER_INDEX=U.USER_INDEX) where COMMU_REPLY_INDEX=#{commuReply_index}
+	</select>
+	
+	<update id="deleteCommuReplyByCommuReplyIndex" parameterType="_int">
+		update TABLE_COMMU_REPLY set
+		COMMU_REPLY_IS_DELETED=1 where COMMU_REPLY_INDEX=#{target_index}
+	</update>
+	
+	<update id="restoreCommuReplyByCommuReplyIndex" parameterType="_int">
+		update TABLE_COMMU_REPLY set
+		COMMU_REPLY_IS_DELETED=0 where COMMU_REPLY_INDEX=#{target_index}
+	</update>
+	
+	<select id="getCommuIndexByCommuReplyIndex" parameterType="_int" resultType="_int">
+		select COMMU_REPLY_COMMU_INDEX from TABLE_COMMU_REPLY
+		where COMMU_REPLY_INDEX=#{target_index}
+	</select>
+	
+	<!-- lecture area -->
+	<select id="selectLectureList" resultType="lecture">
+		select LECTURE_INDEX, CATEGORY_NAME, LECTURE_TITLE, USER_NICKNAME, LECTURE_UPLOAD_DATE 
+		from TABLE_LECTURE 
+		join TABLE_USER on (LECTURE_INSTRUCTOR_INDEX = USER_INDEX)
+		join TABLE_CATEGORY on (LECTURE_CATEGORY_INDEX = CATEGORY_INDEX)
+		order by LECTURE_UPLOAD_DATE DESC
+	</select>
+	
+	<select id="getSelectLectureListCount" resultType="_int">
+		select count(*) from TABLE_LECTURE
+	</select>
+	
+	<!-- coupon area -->
+	<select id="selectCouponList" resultType="hashmap">
+		select * from TABLE_COUPON
+	</select>
+	
+	<select id="getSelectCouponListCount" resultType="_int">
+		select COUNT(*) from TABLE_COUPON
+	</select>
+	
+	<insert id="management_Coupon_Add" parameterType="hashmap">
+		insert into TABLE_COUPON VALUES (
+			SEQ_COUPON_INDEX.NEXTVAL, #{coupon_name}, #{coupon_discount_inf}
+		)
+	</insert>
+	
+	<select id="selectCategoryList" resultType="hashmap">
+		select * from TABLE_CATEGORY
+		where CATEGORY_INDEX like 'L' || '%'
+	</select>
+	
+	<select id="getSelectCategoryListCount" resultType="_int">
+		select count(*) from TABLE_CATEGORY
+	</select>
+	
+	<insert id="management_Category_Add" parameterType="string">
+		insert into TABLE_CATEGORY VALUES(
+		(select 'L'||to_char(max(substr(CATEGORY_INDEX, 2, LENGTH(CATEGORY_INDEX))) + 1) from (select * from TABLE_CATEGORY where CATEGORY_INDEX LIKE  'L' || '%')), #{category_name})
+	</insert>
+	
+	<insert id="management_Lecture_Add">
+		<selectKey keyProperty="lecture_index" resultType="_int" order="AFTER">
+		SELECT SEQ_LECTURE_INDEX.currval FROM DUAL
+		</selectKey>
+		INSERT INTO TABLE_LECTURE VALUES(
+  		SEQ_LECTURE_INDEX.NEXTVAL,#{lecture_category_index},#{lecture_instructor_index},#{lecture_thumbnail},#{lecture_title},#{lecture_intro},#{lecture_content},#{lecture_level},#{lecture_price},SYSDATE,0,0
+ 		)
+	</insert>
+	
+	<insert id="giveCouponToUser" parameterType="map">
+		insert into TABLE_USER_COUPON VALUES(SEQ_USER_COUPON_INDEX.NEXTVAL ,#{target_index}, #{user_index}, DEFAULT, DEFAULT)
+	</insert>
+	
+	<select id="selectPurchaseByPurchaseMap" parameterType="map" resultType="purchase">
+		select MERCHANT_UID, PURCHASE_DATE, PAID_AMOUNT, COUPON_NAME from TABLE_PURCHASE
+		left join TABLE_COUPON on(COUPON_INDEX = PURCHASE_USED_COUPON_INDEX)
+		where MERCHANT_UID = #{uid} and PURCHASE_USER_INDEX = #{user_index}
+	</select>
+	
+	<select id="selectPurchaseLectureList" parameterType="string" resultType="hashmap">
+		select LECTURE_TITLE, LECTURE_PRICE, LECTURE_THUMBNAIL, LECTURE_INDEX
+		from TABLE_PURCHASE JOIN TABLE_PURCHASE_LIST USING(MERCHANT_UID) 
+		join TABLE_LECTURE USING(LECTURE_INDEX)
+		where MERCHANT_UID = #{target_index}
+	</select>
+</mapper>

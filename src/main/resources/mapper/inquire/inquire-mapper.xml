@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="inquire">
+	<select id="selectUserInquireList" parameterType="_int" resultType="hashmap">
+		select * from TABLE_INQUIRE WHERE INQUIRE_SENDER_INDEX = #{inquire_sender_index} AND INQUIRE_IS_DELETED = 0 OR INQUIRE_RECEIVER_INDEX = #{inquire_sender_index} order by INQUIRE_SENDDATE ASC
+	</select>
+	
+	<select id="selectAll" resultType="hashmap">
+		SELECT USER_THUMBNAIL, TABLE_INQUIRE.*  FROM TABLE_INQUIRE JOIN TABLE_USER ON (INQUIRE_SENDER_INDEX = USER_INDEX) ORDER BY INQUIRE_SENDDATE
+	</select>
+	
+	<insert id="insert" parameterType="hashmap">
+		<selectKey keyProperty="inquire_no" resultType="_int" order="AFTER">
+			SELECT SEQ_INQUIRE_INDEX.CURRVAL FROM DUAL
+		</selectKey>
+		insert into TABLE_INQUIRE
+		values(SEQ_INQUIRE_INDEX.NEXTVAL, #{msg.inquire_sender_index}, 
+		<if test="level eq 'user'">
+		(SELECT USER_INDEX FROM TABLE_USER WHERE USER_LEVEL=1001), 
+		</if>
+		<if test="level eq 'admin'">
+		#{msg.inquire_receiver_index}, 
+		</if>
+		#{msg.inquire_content}, #{msg.inquire_attach_originfilename}, #{msg.inquire_attach_renamedfilename}, DEFAULT, DEFAULT)
+	</insert>
+	
+	<update id="fileUpload" parameterType="hashmap">
+		update TABLE_INQUIRE
+		set INQUIRE_ATTACH_ORIGINFILENAME = #{orginFileName}, INQUIRE_ATTACH_RENAMEDFILENAME = #{renamedFileName}
+		where INQUIRE_NO = (SELECT MAX(INQUIRE_NO) FROM TABLE_INQUIRE)
+	</update>
+	
+	<update id="deleteContent">
+		update TABLE_INQUIRE
+		set INQUIRE_IS_DELETED = 1
+		where INQUIRE_NO = #{inquire_no}
+	</update>
+	
+	<delete id="delete" parameterType="_int">
+		delete from TABLE_INQUIRE where INQUIRE_NO = #{inquire_no}
+	</delete>
+	
+</mapper>

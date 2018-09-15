@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="commuReply">
+<resultMap id="getselectCommuReplyList" type="commuReply"> 
+	<result property="commu_Reply_Index" column="COMMU_REPLY_INDEX" /> 
+	<result property="commu_Reply_Commu_Index" column="COMMU_REPLY_COMMU_INDEX" /> 
+	<result property="commu_Reply_Parent_Index" column="COMMU_REPLY_PARENT_INDEX" /> 
+	<result property="commu_Reply_Writer_Index" column="COMMU_REPLY_WRITER_INDEX" /> 
+	<result property="commu_Reply_Content" column="COMMU_REPLY_CONTENT" jdbcType="CLOB" javaType="java.lang.String" /> 
+	<result property="commu_Reply_Upload_Date" column="COMMU_REPLY_UPLOAD_DATE" /> 
+	<result property="commu_Reply_Update_Date" column="COMMU_REPLY_UPDATE_DATE" /> 
+	<result property="commu_Reply_Depth_Index" column="COMMU_REPLY_DEPTH_INEDX" />
+	<result property="commu_Reply_Is_Deleted" column="COMMU_REPLY_IS_DELETED" /> 
+	<result property="commu_Reply_Is_Readed" column="COMMU_REPLY_IS_READED" />  
+	<result property="commu_Reply_Order_Index" column="COMMU_REPLY_ORDER_INDEX" />  
+	
+</resultMap>
+<select id="selectOneCommuReply" resultType="commuReply">
+SELECT * FROM TABLE_COMMU_REPLY WHERE COMMU_REPLY_INDEX=#{commu_Reply_Index}
+</select>
+<select id="selectCommuReplyList" resultMap="getselectCommuReplyList">
+	SELECT R.*,U.USER_NICKNAME COMMU_REPLY_WRITER FROM TABLE_COMMU_REPLY R JOIN TABLE_USER U 
+	ON(R.COMMU_REPLY_WRITER_INDEX=U.USER_INDEX) WHERE COMMU_REPLY_COMMU_INDEX=#{commuNo}
+	ORDER BY COMMU_REPLY_PARENT_INDEX DESC, commu_Reply_Order_Index ASC
+</select>
+
+<insert id="insertCommuReply">
+	INSERT INTO TABLE_COMMU_REPLY VALUES(SEQ_COMMU_REPLY_INDEX.NEXTVAL,#{commu_Reply_Commu_Index},
+		(SELECT (NVL(MAX(COMMU_REPLY_PARENT_INDEX),0)+1) FROM TABLE_COMMU_REPLY),#{commu_Reply_Writer_Index},#{commu_Reply_Content},DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT)
+</insert>
+
+<insert id="insertCommuReplyReply">
+	INSERT INTO TABLE_COMMU_REPLY VALUES(SEQ_COMMU_REPLY_INDEX.NEXTVAL,#{commu_Reply_Commu_Index},
+		#{commu_Reply_Parent_Index},#{commu_Reply_Writer_Index},#{commu_Reply_Content},DEFAULT,DEFAULT,#{commu_Reply_Depth_Index}+1,
+    #{commu_Reply_Order_Index}+1,DEFAULT,DEFAULT)
+</insert>
+<update id="updateCommuReplyReply">
+	UPDATE TABLE_COMMU_REPLY SET commu_Reply_Order_Index = commu_Reply_Order_Index +1 
+	WHERE COMMU_REPLY_PARENT_INDEX = #{commu_Reply_Parent_Index} AND commu_Reply_Order_Index > #{commu_Reply_Order_Index}
+</update>
+<update id="updateCommuReplyReply2">
+	UPDATE TABLE_COMMU_REPLY SET commu_Reply_Order_Index = commu_Reply_Order_Index -1
+	WHERE COMMU_REPLY_PARENT_INDEX = #{commu_Reply_Parent_Index} AND commu_Reply_Order_Index > #{commu_Reply_Order_Index}
+</update>
+<update id="deleteCommuReplyReply">
+	UPDATE TABLE_COMMU_REPLY SET COMMU_REPLY_IS_DELETED =1, COMMU_REPLY_UPDATE_DATE=SYSDATE WHERE COMMU_REPLY_INDEX=#{commu_Reply_Index}
+</update>
+</mapper>

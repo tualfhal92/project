@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="home">
+
+	<select id="selectLectureListRecent" parameterType="hashmap" resultType="lecture">
+		SELECT DISTINCT LECTURE_INDEX, LECTURE_TITLE, LECTURE_PRICE, LECTURE_THUMBNAIL, LECTURE_UPLOAD_DATE 
+		<choose>
+			<when test="user_index != 0">
+				, WISH_USER_INDEX
+				FROM TABLE_LECTURE
+				LEFT JOIN (SELECT * FROM TABLE_WISH_LIST WHERE WISH_USER_INDEX = #{user_index}) ON (LECTURE_INDEX = WISH_LECTURE_INDEX) 
+				LEFT JOIN (SELECT * FROM TABLE_CART WHERE CART_USER_INDEX = #{user_index}) ON (LECTURE_INDEX = CART_LECTURE_INDEX)
+				JOIN TABLE_USER ON(USER_INDEX = LECTURE_INSTRUCTOR_INDEX)
+			</when>
+			<otherwise>
+				FROM TABLE_LECTURE
+				JOIN TABLE_USER ON(USER_INDEX = LECTURE_INSTRUCTOR_INDEX)
+			</otherwise>
+		</choose>		
+		WHERE LECTURE_IS_DELETED = 0 AND USER_IS_SECESSION = 0 AND USER_IS_KICKED = 0
+		ORDER BY LECTURE_UPLOAD_DATE DESC
+	</select>
+	
+	<select id="selectLectureListRecommanded" resultType="lecture">
+		select * from TABLE_LECTURE order by LECTURE_UPLOAD_DATE desc
+	</select>
+	
+	<select id="userRecomandedList" parameterType="hashmap" resultType="lecture">
+	<choose>
+		<when test="user_index != 0 or lecture_cnt != 0">
+			select * from (select * from (select * from (select * from (SELECT * FROM TABLE_LECTURE
+			WHERE LECTURE_CATEGORY_INDEX IN (select lecture_category_index
+	        from table_lecture_history
+	        join TABLE_LECTURE on(history_lecture_index = lecture_index)
+	        join TABLE_USER ON(USER_INDEX = LECTURE_INSTRUCTOR_INDEX)
+	        where history_user_index = #{user_index} and LECTURE_IS_DELETED = 0 AND USER_IS_SECESSION = 0 AND USER_IS_KICKED = 0)
+	        AND LECTURE_INDEX NOT IN (select lecture_index
+	        from table_lecture_history
+	        join TABLE_LECTURE on(history_lecture_index = lecture_index)
+	        where history_user_index = #{user_index})
+	        )order by lecture_hits desc, lecture_upload_date desc)
+	        <![CDATA[  
+	        where rownum <= 20 
+	        ]]> )order by DBMS_RANDOM.value )    
+	        left join TABLE_WISH_LIST on(lecture_index = WISH_LECTURE_INDEX) 
+	        <![CDATA[ 
+	        where rownum <= 12
+	        ]]>
+        </when>
+		<otherwise>
+			SELECT * FROM 
+				(select * from
+					(select * from
+						(select * from
+							(select * from table_lecture join table_user on(user_index = lecture_instructor_index) where lecture_is_deleted = 0 and user_is_secession = 0 and user_is_kicked = 0) 
+						order by lecture_hits desc, lecture_upload_date desc)
+			<![CDATA[  
+			where rownum <= 20
+			]]>
+			)order by DBMS_RANDOM.value) 
+			<![CDATA[ 
+			where rownum <= 12
+			]]>
+		</otherwise>
+	</choose>
+	</select>
+	
+	<select id="wishCount" parameterType="_int" resultType="_int">
+		SELECT COUNT(*) FROM TABLE_WISH_LIST WHERE WISH_USER_INDEX = #{user_index}
+	</select>
+	
+	<select id="lectureCount" parameterType="_int" resultType="_int">
+		SELECT COUNT(*) FROM TABLE_LECTURE_HISTORY WHERE HISTORY_USER_INDEX = #{user_index}
+	</select>
+</mapper>

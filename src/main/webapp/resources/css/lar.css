@@ -1,0 +1,472 @@
+/* _header.jsp */
+
+/* slave-1 custom css start */
+
+header {
+	border-bottom: 1px solid lightgray;
+}
+
+@media ( min-width : 768px) {
+	header {
+		margin-top: 100px;
+		margin-bottom: 50px;
+	}
+	.navbar-left {
+		padding-left: 15%;
+	}
+	.mobile-dropdown {
+		display: none !important;
+	}
+}
+
+@media ( max-width : 992px) {
+	.navbar-left {
+		padding-left: 5%;
+	}
+}
+
+@media ( max-width : 767px) {
+	header {
+		margin-top: 54px;
+	}
+	
+	#nav-collapse-menu .dropdown-menu li a {
+		color: #fff !important;
+	}
+}
+
+.slide {
+	width: 100%;
+	height: 100%;
+}
+
+.main-carousel {
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+.carousel-inner {
+	height: 480px;
+}
+
+.item, .carousel-inner img {
+	min-height: 480px;
+	width: 100% !important;
+}
+
+#nav-signin {
+	color: #fff;
+}
+
+#nav-signin:hover {
+	color: #cbbde2;
+}
+
+.FindUser {
+	float: left;
+	font-size: 10px;
+}
+
+/*--------- 모달 signin ------------*/
+.modal-header.signin, .signin h4, .close {
+	background-color: #5cb85c;
+	color: white !important;
+	text-align: center;
+	font-size: 30px;
+}
+
+.modal-header.signup, .signup h4, .close {
+	background-color: #d9534f;
+	color: white !important;
+	text-align: center;
+	font-size: 30px;
+}
+
+.modal-header.finduserpassword, .finduserpassword h4, .close {
+	background-color: #5bc0de;
+	color: white !important;
+	text-align: center;
+	font-size: 30px;
+}
+
+.modal-header.finduserid, .finduserid h4, .close {
+	background-color: #337ab7;
+	color: white !important;
+	text-align: center;
+	font-size: 30px;
+}
+
+.modal-header.unlockuserid, .unlockuserid h4, .close {
+	background-color: #f0ad4e;
+	color: white !important;
+	text-align: center;
+	font-size: 30px;
+}
+
+.modal-footer {
+	background-color: #f9f9f9;
+}
+
+/*--------- 모달 signin end------------*/
+/* slave-1 custom css end */
+
+/* jaeun */
+a {
+	cursor: pointer;
+}
+
+/* --------- home.jsp ---------- */
+.thumbnail img {
+	height: 65% !important;
+	width: 100%;
+}
+
+.thumbnail {
+	height: 310px;
+	max-width: 95%;
+	margin: 1% 1%;
+}
+
+.thumbnail .glyphicon {
+	font-size: 120%;
+	margin: 3px;
+}
+
+.thumbnail .glyphicon-shopping-cart {
+	color: gray;
+}
+/* --------- mypage.jsp --------- */
+
+/* mypageBody */
+.mypageBody {
+	margin-top: 30px;
+	margin-right: 50px;
+	margin-left: 40px;
+}
+
+.tabs {
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+	margin: 1em 0 2em;
+	font-weight: 300;
+}
+
+/* myLecture */
+.wrapMyLecture a:link {
+	color: black;
+	text-decoration: none;
+}
+
+.wrapMyLecture a:visited {
+	color: black;
+	text-decoration: none;
+}
+
+.wrapMyLecture a:hover {
+	color: #fed136;
+	text-decoration: underline;
+}
+
+.wrapMyLecture .glyphicon-star, .glyphicon-star-empty {
+	color: #fed136;
+}
+
+.wrapMyLecture .well {
+	margin-top: 20px;
+	background: white;
+	border: 1px solid white;
+	border-bottom: 1px solid #cbbde2;
+}
+
+/* wishList */
+.wrapWishList .panel {
+	border: 1px solid #ddd;
+	background-color: #fcfcfc;
+}
+
+.wrapWishList .panel .btn-group {
+	margin: 15px 0 30px;
+}
+
+.wrapWishList .panel .btn-group .btn {
+	transition: background-color .3s ease;
+}
+
+.wrapWishList .table {
+	background-color: #fff;
+	border-bottom: 1px solid #eee;
+}
+
+.wrapWishList .table tbody tr td {
+	padding: 10px;
+	vertical-align: middle;
+	border-top-color: #eee;
+}
+
+.wrapWishList .table tr td:first-child {
+	width: 38px;
+}
+
+.wrapWishList .ckbox {
+	position: relative;
+}
+
+.wrapWishList .ckbox input[type="checkbox"] {
+	opacity: 0;
+}
+
+.wrapWishList .ckbox label {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.wrapWishList .ckbox label:before {
+	content: '';
+	top: 1px;
+	left: 0;
+	width: 18px;
+	height: 18px;
+	display: block;
+	position: absolute;
+	border-radius: 2px;
+	border: 1px solid #bbb;
+	background-color: #fff;
+}
+
+.wrapWishList .ckbox input[type="checkbox"]:checked+label:before {
+	border-color: #2BBCDE;
+	background-color: #2BBCDE;
+}
+
+.wrapWishList .ckbox input[type="checkbox"]:checked+label:after {
+	top: 3px;
+	left: 3.5px;
+	content: '\e013';
+	color: #fff;
+	font-size: 11px;
+	font-family: 'Glyphicons Halflings';
+	position: absolute;
+}
+
+.wrapWishList .table .media-photo {
+	width: 100px;
+}
+
+.wrapWishList .table .media-meta {
+	font-size: 11px;
+	color: #999;
+}
+
+.wrapWishList .table .media .title {
+	color: #2BBCDE;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: normal;
+	margin: 0;
+}
+
+.wrapWishList .table .media .title span {
+	font-size: .8em;
+	margin-right: 20px;
+}
+
+.wrapWishList .table .media .summary {
+	font-size: 14px;
+}
+
+/* paymentList */
+.wrapPaymentList table {
+	width: 100%;
+	border: 1px solid #eee;
+	border-collapse: collapse;
+}
+
+/* QnAList */
+#wrapQnA table tr th {
+	text-align: center;
+}
+
+/* alarmList */
+.wrapAlarm a {
+	color: #84BAC6;
+}
+
+.wrapAlarm .update-nag {
+	display: inline-block;
+	font-size: 18px;
+	text-align: left;
+	background-color: #fafafa;
+	height: 40px;
+	-webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, .2);
+	box-shadow: 0 1px 1px 0 rgba(0, 0, 0, .1);
+	margin-bottom: 10px;
+}
+
+.wrapAlarm .update-nag:hover {
+	cursor: pointer;
+	-webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, .4);
+	box-shadow: 0 1px 1px 0 rgba(0, 0, 0, .3);
+}
+
+.wrapAlarm .update-nag>.update-split {
+	background: #337ab7;
+	width: 33px;
+	float: left;
+	color: #fff !important;
+	height: 100%;
+	text-align: center;
+}
+
+.wrapAlarm .update-nag>.update-split>.glyphicon {
+	position: relative;
+	top: calc(50% - 9px) !important; /* 50% - 3/4 of icon height */
+}
+
+.wrapAlarm .update-nag>.update-split.update-success {
+	background: #C0D62E !important;
+}
+
+.wrapAlarm .update-nag>.update-split.update-danger {
+	background: #F18A20 !important;
+}
+
+.wrapAlarm .update-nag>.update-split.update-info {
+	background: #84BAC6 !important;
+}
+
+.wrapAlarm .update-nag>.update-text {
+	line-height: 19px;
+	padding-top: 11px;
+	padding-left: 45px;
+	padding-right: 20px;
+}
+
+/* --------- purchase.jsp --------- */
+.PurchaselectureList .lectureInfo {
+	border-bottom: 2px solid black;
+}
+
+/* --------- cart.jsp --------- */
+.cartList .panel {
+	border: 1px solid #ddd;
+	background-color: #fcfcfc;
+}
+
+.cartList .table {
+	background-color: #fff;
+	border-bottom: 1px solid #eee;
+}
+
+.cartList .table tbody tr th {
+	text-align: center;
+	white-space: nowrap;
+}
+
+.cartList .table tbody tr td{
+	padding: 10px;
+	vertical-align: middle;
+	border-top-color: #eee;
+	white-space: nowrap;
+}
+
+.cartList .table tr td:first-child {
+	width: 38px;
+}
+
+.cartList .ckbox {
+	position: relative;
+}
+
+.cartList .ckbox input[type="checkbox"] {
+	opacity: 0;
+}
+
+.cartList .ckbox label {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.cartList .ckbox label:before {
+	content: '';
+	top: 1px;
+	left: 0;
+	width: 18px;
+	height: 18px;
+	display: block;
+	position: absolute;
+	border-radius: 2px;
+	border: 1px solid #bbb;
+	background-color: #fff;
+}
+
+.cartList .ckbox input[type="checkbox"]:checked+label:before {
+	border-color: #2BBCDE;
+	background-color: #2BBCDE;
+}
+
+.cartList .ckbox input[type="checkbox"]:checked+label:after {
+	top: 3px;
+	left: 3.5px;
+	content: '\e013';
+	color: #fff;
+	font-size: 11px;
+	font-family: 'Glyphicons Halflings';
+	position: absolute;
+}
+
+.cartList .table .media-photo {
+	width: 100px;
+}
+
+.cartList .table .media-meta {
+	font-size: 11px;
+	color: #999;
+}
+
+.cartList .table .media .title {
+	color: #2BBCDE;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: normal;
+	margin: 0;
+}
+
+.cartList .table .media .title span {
+	font-size: .8em;
+	margin-right: 20px;
+}
+
+.cartList .table .media .summary {
+	font-size: 14px;
+}
+
+.cartList .glyphicon-star {
+	color: #fed136;
+}
+
+.cartList a {
+	color: black;
+}
+
+div.col-md-10.col-sm-10 {
+	border-right: solid 1px lightgray;
+	padding-right: 5%;
+}
+ 
+div.wrapper {
+	margin-bottom: 50px;
+}
+
+div.wrapper > div.container-fluid {
+	margin-left: 8.33333333%;
+	margin-right: 8.33333333%;
+}
+
+textarea {
+	resize: none !important;
+}

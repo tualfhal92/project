@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="commu">
+
+	<resultMap id="getselectCommuList" type="commu">
+		<result property="commu_Index" column="COMMU_INDEX" />
+		<result property="commu_Writer_Index" column="COMMU_WRITER_INDEX" />
+		<result property="commu_Category_Index" column="COMMU_CATEGORY_INDEX" />
+		<result property="commu_Title" column="COMMU_TITLE" />
+		<result property="commu_Content" column="COMMU_CONTENT"
+			jdbcType="CLOB" javaType="java.lang.String" />
+		<result property="commu_Hits" column="COMMU_HITS" />
+		<result property="commu_Upload_Date" column="COMMU_UPLOAD_DATE" />
+		<result property="commu_Update_Date" column="COMMU_UPDATE_DATE" />
+		<result property="commu_Is_Deleted" column="COMMU_IS_DELETED" />
+		<result property="commu_tags" column="COMMU_TAGS" />
+		<result property="fileCount" column="FILECOUNT" />
+		<result property="commu_Writer" column="COMMU_WRITER" />
+	</resultMap>
+	<resultMap id="getselectCommuOne" type="commu">
+		<result property="commu_Index" column="COMMU_INDEX" />
+		<result property="commu_Writer_Index" column="COMMU_WRITER_INDEX" />
+		<result property="commu_Category_Index" column="COMMU_CATEGORY_INDEX" />
+		<result property="commu_Title" column="COMMU_TITLE" />
+		<result property="commu_Content" column="COMMU_CONTENT"
+			jdbcType="CLOB" javaType="java.lang.String" />
+		<result property="commu_Hits" column="COMMU_HITS" />
+		<result property="commu_Upload_Date" column="COMMU_UPLOAD_DATE" />
+		<result property="commu_Update_Date" column="COMMU_UPDATE_DATE" />
+		<result property="commu_tags" column="COMMU_TAGS" />
+		<result property="commu_Is_Deleted" column="COMMU_IS_DELETED" />
+		<result property="commu_Writer" column="COMMU_WRITER" />
+	</resultMap>
+	<select id="selectCommuList" resultMap="getselectCommuList">
+		SELECT A.*, (SELECT
+		COUNT(*) FROM TABLE_COMMU_ATTACH WHERE COMMU_ATTACH_COMMU_INDEX =
+		A.COMMU_INDEX) FILECOUNT ,
+		(SELECT USER_NICKNAME FROM TABLE_USER WHERE USER_INDEX =
+		A.COMMU_WRITER_INDEX) COMMU_WRITER
+		FROM TABLE_COMMU A JOIN TABLE_USER U ON(A.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE
+		COMMU_CATEGORY_INDEX= 'B04' AND COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0 ORDER BY COMMU_INDEX
+		DESC
+	</select>
+	<select id="selectQAList" resultMap="getselectCommuList">
+		SELECT A.*, (SELECT
+		COUNT(*) FROM TABLE_COMMU_ATTACH WHERE COMMU_ATTACH_COMMU_INDEX =
+		A.COMMU_INDEX) FILECOUNT ,
+		(SELECT USER_NICKNAME FROM TABLE_USER WHERE USER_INDEX =
+		A.COMMU_WRITER_INDEX) COMMU_WRITER
+		FROM TABLE_COMMU A JOIN TABLE_USER U ON(A.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE
+		COMMU_CATEGORY_INDEX='B02' AND COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0 ORDER BY COMMU_INDEX
+		DESC
+	</select>
+
+	<select id="selectCommuListSearchTitle" resultMap="getselectCommuList">
+		SELECT A.*, (SELECT COUNT(*) FROM TABLE_COMMU_ATTACH WHERE
+		COMMU_ATTACH_COMMU_INDEX = A.COMMU_INDEX) FILECOUNT ,
+		(SELECT
+		USER_NICKNAME FROM TABLE_USER WHERE USER_INDEX = A.COMMU_WRITER_INDEX)
+		COMMU_WRITER
+		FROM TABLE_COMMU A JOIN TABLE_USER U ON(A.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE COMMU_CATEGORY_INDEX='B04' AND
+		COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0 AND UPPER(COMMU_TITLE) LIKE UPPER(#{commuSearchText}) ORDER BY
+		COMMU_INDEX DESC
+	</select>
+	<select id="selectQAListSearchTitle" resultMap="getselectCommuList">
+	SELECT A.*, (SELECT COUNT(*) FROM TABLE_COMMU_ATTACH WHERE
+		COMMU_ATTACH_COMMU_INDEX = A.COMMU_INDEX) FILECOUNT ,
+		(SELECT USER_NICKNAME FROM TABLE_USER WHERE USER_INDEX =
+		A.COMMU_WRITER_INDEX) COMMU_WRITER
+		FROM TABLE_COMMU A JOIN TABLE_USER U ON(A.COMMU_WRITER_INDEX=U.USER_INDEX) 
+		WHERE COMMU_CATEGORY_INDEX='B02' AND COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0 AND UPPER(COMMU_TITLE) LIKE
+		UPPER(#{qaSearchText}) ORDER BY COMMU_INDEX DESC
+	</select>
+
+	<select id="selectCommuListSearchWriter" resultMap="getselectCommuList">
+		SELECT A.*, (SELECT COUNT(*) FROM TABLE_COMMU_ATTACH WHERE
+		COMMU_ATTACH_COMMU_INDEX = A.COMMU_INDEX) FILECOUNT ,
+		(SELECT
+		USER_NICKNAME FROM TABLE_USER WHERE USER_INDEX = A.COMMU_WRITER_INDEX)
+		COMMU_WRITER
+		FROM TABLE_COMMU A JOIN TABLE_USER U ON(A.COMMU_WRITER_INDEX=U.USER_INDEX)
+		WHERE COMMU_CATEGORY_INDEX='B04' AND COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0 AND
+		(SELECT USER_NICKNAME FROM TABLE_USER WHERE USER_INDEX =
+		A.COMMU_WRITER_INDEX) LIKE #{commuSearchText} ORDER BY COMMU_INDEX DESC
+	</select>
+
+	<select id="selectCommuListSearchTags" resultMap="getselectCommuList">
+	SELECT A.*, (SELECT COUNT(*) FROM TABLE_COMMU_ATTACH WHERE
+		COMMU_ATTACH_COMMU_INDEX = A.COMMU_INDEX) FILECOUNT ,
+		(SELECT USER_NICKNAME FROM TABLE_USER
+		WHERE USER_INDEX = A.COMMU_WRITER_INDEX) COMMU_WRITER
+		FROM TABLE_COMMU A JOIN TABLE_USER U ON(A.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE
+		COMMU_CATEGORY_INDEX='B04' AND COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0 AND
+		COMMU_TAGS LIKE #{commuSearchText} ORDER BY COMMU_INDEX DESC
+	</select>
+	<select id="selectQAListSearchTags" resultMap="getselectCommuList">
+		SELECT A.*, (SELECT COUNT(*) FROM TABLE_COMMU_ATTACH WHERE
+		COMMU_ATTACH_COMMU_INDEX = A.COMMU_INDEX) FILECOUNT ,
+		(SELECT USER_NICKNAME FROM TABLE_USER
+		WHERE USER_INDEX = A.COMMU_WRITER_INDEX) COMMU_WRITER
+		FROM TABLE_COMMU A JOIN TABLE_USER U ON(A.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE
+		COMMU_CATEGORY_INDEX='B02' AND COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0 AND
+		COMMU_TAGS LIKE #{qaSearchText} ORDER BY COMMU_INDEX DESC
+	</select>
+
+	<select id="selectQAListSearchWriter" resultMap="getselectCommuList">
+		SELECT A.*, (SELECT COUNT(*) FROM TABLE_COMMU_ATTACH WHERE
+		COMMU_ATTACH_COMMU_INDEX = A.COMMU_INDEX) FILECOUNT ,
+		(SELECT USER_NICKNAME FROM TABLE_USER WHERE USER_INDEX =
+		A.COMMU_WRITER_INDEX) COMMU_WRITER
+		FROM TABLE_COMMU A JOIN TABLE_USER U ON(A.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE
+		COMMU_CATEGORY_INDEX='B02' AND COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0 AND
+		(SELECT USER_NICKNAME FROM TABLE_USER WHERE USER_INDEX =
+		A.COMMU_WRITER_INDEX) LIKE #{qaSearchText} ORDER BY COMMU_INDEX DESC
+	</select>
+
+	<select id="selectNoticeList" resultType="commu">
+		SELECT C.* FROM	TABLE_COMMU C JOIN TABLE_USER U ON(C.COMMU_WRITER_INDEX=U.USER_INDEX) 
+		WHERE COMMU_CATEGORY_INDEX='N01' AND COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0
+	</select>
+	<select id="selectCommuTotalContents" resultType="_int">
+		SELECT COUNT(*)
+		FROM TABLE_COMMU C JOIN TABLE_USER U ON(C.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE COMMU_CATEGORY_INDEX='B04' AND
+		COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0
+	</select>
+	<select id="selectQATotalContents" resultType="_int">
+		SELECT COUNT(*)
+		FROM TABLE_COMMU C JOIN TABLE_USER U ON(C.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE COMMU_CATEGORY_INDEX='B02' AND
+		COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0
+	</select>
+	<select id="selectCommuTotalContentsTitle" parameterType="String"
+		resultType="_int">
+		SELECT COUNT(*) FROM TABLE_COMMU C JOIN TABLE_USER U ON(C.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE COMMU_TITLE LIKE
+		#{commuSearchText} AND COMMU_CATEGORY_INDEX='B04' AND COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0
+	</select>
+	<select id="selectQATotalContentsTitle" parameterType="String"
+		resultType="_int">
+		SELECT COUNT(*) FROM TABLE_COMMU C JOIN TABLE_USER U ON(C.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE COMMU_TITLE LIKE
+		#{commuSearchText} AND COMMU_CATEGORY_INDEX='B02' AND COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0
+	</select>
+	<select id="selectCommuTotalContentsTags" parameterType="String" resultType="_int">
+	  SELECT COUNT(*) FROM TABLE_COMMU C JOIN TABLE_USER U ON(C.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE COMMU_TAGS LIKE
+		#{commuSearchText} AND COMMU_CATEGORY_INDEX='B04' AND COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0
+	</select>
+	<select id="selectQATotalContentsTags" parameterType="String" resultType="_int">
+	  SELECT COUNT(*) FROM TABLE_COMMU C JOIN TABLE_USER U ON(C.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE COMMU_TAGS LIKE
+		#{commuSearchText} AND COMMU_CATEGORY_INDEX='B02' AND COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0
+	</select>
+	<select id="selectCommuTotalContentsWriter" parameterType="String"
+		resultType="_int">
+		SELECT COUNT(*) FROM TABLE_COMMU A JOIN TABLE_USER U ON(A.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE (SELECT
+		USER_NICKNAME FROM TABLE_USER WHERE USER_INDEX = A.COMMU_WRITER_INDEX)
+		LIKE #{commuSearchText} AND COMMU_CATEGORY_INDEX='B04' AND
+		COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0
+	</select>
+	<select id="selectQATotalContentsWriter" parameterType="String"
+		resultType="_int">
+		SELECT COUNT(*) FROM TABLE_COMMU A JOIN TABLE_USER U ON(A.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE (SELECT
+		USER_NICKNAME FROM TABLE_USER WHERE USER_INDEX = A.COMMU_WRITER_INDEX)
+		LIKE #{qaSearchText} AND COMMU_CATEGORY_INDEX='B02' AND
+		COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0
+	</select>
+
+	<select id="selectCommuOne" parameterType="_int" resultMap="getselectCommuOne">
+		SELECT
+		COMMU_INDEX,COMMU_WRITER_INDEX,COMMU_CATEGORY_INDEX,COMMU_TITLE,COMMU_CONTENT,COMMU_HITS,COMMU_UPLOAD_DATE,COMMU_UPDATE_DATE,COMMU_IS_DELETED,USER_NICKNAME
+		COMMU_WRITER, COMMU_TAGS
+		FROM TABLE_USER U JOIN TABLE_COMMU C ON(C.COMMU_WRITER_INDEX=U.USER_INDEX)
+		WHERE C.COMMU_INDEX=#{commuNo}
+	</select>
+	<select id="selectNewsList" resultType="commu">
+		SELECT A.*, (SELECT COUNT(*) FROM TABLE_COMMU_ATTACH WHERE
+		COMMU_ATTACH_COMMU_INDEX = A.COMMU_INDEX) FILECOUNT ,
+		(SELECT COMMU_ATTACH_RENAMEDFILENAME FROM TABLE_COMMU_ATTACH WHERE
+		COMMU_ATTACH_COMMU_INDEX = A.COMMU_INDEX)
+		COMMU_ATTACH_RENAMEDFILENAME,
+		(SELECT USER_NICKNAME FROM TABLE_USER WHERE USER_INDEX =
+		A.COMMU_WRITER_INDEX) COMMU_WRITER
+		FROM TABLE_COMMU A JOIN TABLE_USER U ON(A.COMMU_WRITER_INDEX=U.USER_INDEX) WHERE
+		COMMU_CATEGORY_INDEX='B03' AND COMMU_IS_DELETED=0 AND U.USER_IS_SECESSION=0 ORDER BY COMMU_INDEX
+		DESC
+	</select>
+	<select id="selectAttachmentList" parameterType="_int"
+		resultType="attachment">
+		SELECT * FROM TABLE_COMMU_ATTACH WHERE
+		COMMU_ATTACH_COMMU_INDEX = #{commu_Index}
+	</select>
+	<insert id="insertCommu">
+		<!-- 매퍼에서 DB의 키 값을 선택하여 SQL 실행 전, 후를 활용하여 키값을 가져와 이용할 수 있다. 반환하는데 int형이지만 
+			받은 Board 객체에 boardNo를 setter 처럼 새로 인식해서 저장해준다. -->
+		<selectKey keyProperty="commu_Index" resultType="_int"
+			order="AFTER">
+			SELECT SEQ_COMMU_INDEX.CURRVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TABLE_COMMU(COMMU_INDEX, COMMU_TITLE, COMMU_WRITER_INDEX,
+		COMMU_CONTENT,COMMU_CATEGORY_INDEX, COMMU_TAGS)
+		VALUES(SEQ_COMMU_INDEX.NEXTVAL,#{commu_Title},#{commu_Writer_Index},#{commu_Content},#{commu_Category_Index},
+		#{commu_tags})
+	</insert>
+	<update id="updateCommu">
+		UPDATE TABLE_COMMU SET COMMU_TITLE=#{commu_Title},COMMU_CONTENT=#{commu_Content},COMMU_TAGS=#{commu_tags}
+		WHERE COMMU_INDEX=#{commu_Index}
+	</update>
+	<update id="updateAttachment">
+		UPDATE TABLE_COMMU_ATTACH SET COMMU_ATTACH_ORIGINFILENAME=#{commu_Attach_Originfilename},COMMU_ATTACH_RENAMEDFILENAME=#{commu_Attach_Renamedfilename}
+		WHERE COMMU_ATTACH_COMMU_INDEX=#{commu_Attach_Commu_Index}
+	</update>
+	<insert id="insertAttachment" parameterType="attachment">
+		INSERT INTO
+		TABLE_COMMU_ATTACH(COMMU_ATTACH_INDEX,COMMU_ATTACH_COMMU_INDEX,COMMU_ATTACH_ORIGINFILENAME,COMMU_ATTACH_RENAMEDFILENAME)
+		VALUES(SEQ_COMMU_ATTACH_INDEX.NEXTVAL,#{commu_Attach_Commu_Index},#{commu_Attach_Originfilename},#{commu_Attach_Renamedfilename})
+	</insert>
+	<update id="IncreaseCommu" parameterType="_int">
+		UPDATE TABLE_COMMU SET
+		COMMU_HITS=COMMU_HITS+1 WHERE COMMU_INDEX =#{commuNo} 
+	</update>
+	<update id="deleteCommu" parameterType="string"> 
+		UPDATE TABLE_COMMU SET
+		COMMU_IS_DELETED=1 WHERE COMMU_INDEX=#{user_index}
+	</update>
+
+</mapper>
